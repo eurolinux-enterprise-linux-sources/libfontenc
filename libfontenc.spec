@@ -1,23 +1,20 @@
+# Must be kept in sync with xorg-x11-fonts !
+%define _x11fontdir		%{_datadir}/X11/fonts
+
 Summary: X.Org X11 libfontenc runtime library
 Name: libfontenc
-Version: 1.0.5
-Release: 2%{?dist}
+Version: 1.1.2
+Release: 3%{?dist}
 License: MIT
 Group: System Environment/Libraries
 URL: http://www.x.org
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-
 Source0: ftp://ftp.x.org/pub/individual/lib/%{name}-%{version}.tar.bz2
-
-Patch0: libfontenc-1.0.0-get-fontdir-from-pkgconfig.patch
 
 BuildRequires: pkgconfig
 BuildRequires: xorg-x11-util-macros
 BuildRequires: xorg-x11-proto-devel
 BuildRequires: zlib-devel
 BuildRequires: xorg-x11-font-utils
-# FIXME: temporarily require autoconf for workaround
-BuildRequires: autoconf
 
 %description
 X.Org X11 libfontenc runtime library
@@ -34,54 +31,69 @@ X.Org X11 libfontenc development package
 
 %prep
 %setup -q
-%patch0 -p0 -b .get-fontdir-from-pkgconfig
-
-# Disable static library creation by default.
-%define with_static 0
 
 %build
-# FIXME: libfontenc-0.99.2-use-datadir-for-encodings.patch requires that
-# aclocal, automake, and autoconf get invoked to activate the changes.
-# These can be removed once the patch is no longer necessary.
-#aclocal
-#automake
-autoconf
-%configure \
-%if ! %{with_static}
-	--disable-static
-%endif
-make
+export CFLAGS="$RPM_OPT_FLAGS -Os"
+%configure --disable-static --with-fontrootdir=%{_x11fontdir}
+make %{?_smp_mflags}
 
 %install
-rm -rf $RPM_BUILD_ROOT
-
-make install DESTDIR=$RPM_BUILD_ROOT
+make install DESTDIR=$RPM_BUILD_ROOT INSTALL="install -p"
 
 # Remove all libtool archives (*.la)
 find $RPM_BUILD_ROOT -type f -name '*.la' | xargs rm -f -- || :
-
-%clean
-rm -rf $RPM_BUILD_ROOT
 
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
 
 %files
-%defattr(-,root,root,-)
-%doc AUTHORS COPYING README ChangeLog
+%doc COPYING README ChangeLog
 %{_libdir}/libfontenc.so.1
 %{_libdir}/libfontenc.so.1.0.0
 
 %files devel
-%defattr(-,root,root,-)
 %{_includedir}/X11/fonts/fontenc.h
-%if %{with_static}
-%{_libdir}/libfontenc.a
-%endif
 %{_libdir}/libfontenc.so
 %{_libdir}/pkgconfig/fontenc.pc
 
 %changelog
+* Fri Oct 31 2014 Hans de Goede <hdegoede@redhat.com> - 1.1.2-3
+- Pass --with-fontrootdir to ./configure so that libfontenc can find the
+  encoding files (rhbz#1046341)
+
+* Sun Aug 17 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.2-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
+
+* Thu Jul 24 2014 Benjamin Tissoires <benjamin.tissoires@redhat.com> 1.1.2-1
+- libfontenc 1.1.2
+
+* Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.1-5
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
+
+* Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.1-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
+
+* Thu Feb 14 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.1-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
+
+* Thu Jul 19 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.1-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Mon Mar 05 2012 Adam Jackson <ajax@redhat.com> 1.1.1-1
+- libfontenc 1.1.1
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.0-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Tue Jun 21 2011 Adam Jackson <ajax@redhat.com> 1.1.0-1
+- libfontenc 1.1.0
+
+* Mon Feb 07 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0.5-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
+
+* Tue Sep 07 2010 Parag Nemade <paragn AT fedoraproject.org> 1.0.5-3
+- Merge-review cleanup (#226004)
+
 * Fri Aug 28 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.0.5-2
 - libfontenc-1.0.0-get-fontdir-from-pkgconfig.patch: rebase to 1.0.5.
 
