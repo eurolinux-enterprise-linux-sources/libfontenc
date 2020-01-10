@@ -3,7 +3,7 @@
 
 Summary: X.Org X11 libfontenc runtime library
 Name: libfontenc
-Version: 1.1.2
+Version: 1.1.3
 Release: 3%{?dist}
 License: MIT
 Group: System Environment/Libraries
@@ -55,6 +55,9 @@ find $RPM_BUILD_ROOT -type f -name '*.la' | xargs rm -f -- || :
 %{_libdir}/pkgconfig/fontenc.pc
 
 %changelog
+* Mon Jan 09 2017 Benjamin Tissoires <benjamin.tissoires@redhat.com> 1.1.3-3
+- libfontenc 1.1.3 (Merge fedora 25)
+
 * Fri Oct 31 2014 Hans de Goede <hdegoede@redhat.com> - 1.1.2-3
 - Pass --with-fontrootdir to ./configure so that libfontenc can find the
   encoding files (rhbz#1046341)
