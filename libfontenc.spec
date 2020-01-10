@@ -1,7 +1,10 @@
+# Must be kept in sync with xorg-x11-fonts !
+%define _x11fontdir		%{_datadir}/X11/fonts
+
 Summary: X.Org X11 libfontenc runtime library
 Name: libfontenc
-Version: 1.1.1
-Release: 5%{?dist}
+Version: 1.1.2
+Release: 3%{?dist}
 License: MIT
 Group: System Environment/Libraries
 URL: http://www.x.org
@@ -29,7 +32,7 @@ X.Org X11 libfontenc development package
 
 %build
 export CFLAGS="$RPM_OPT_FLAGS -Os"
-%configure --disable-static
+%configure --disable-static --with-fontrootdir=%{_x11fontdir}
 make %{?_smp_mflags}
 
 %install
@@ -42,23 +45,31 @@ find $RPM_BUILD_ROOT -type f -name '*.la' | xargs rm -f -- || :
 %postun -p /sbin/ldconfig
 
 %files
-%defattr(-,root,root,-)
 %doc COPYING README ChangeLog
 %{_libdir}/libfontenc.so.1
 %{_libdir}/libfontenc.so.1.0.0
 
 %files devel
-%defattr(-,root,root,-)
 %{_includedir}/X11/fonts/fontenc.h
 %{_libdir}/libfontenc.so
 %{_libdir}/pkgconfig/fontenc.pc
 
 %changelog
-* Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 1.1.1-5
-- Mass rebuild 2014-01-24
+* Fri Oct 31 2014 Hans de Goede <hdegoede@redhat.com> - 1.1.2-3
+- Pass --with-fontrootdir to ./configure so that libfontenc can find the
+  encoding files (rhbz#1046341)
 
-* Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 1.1.1-4
-- Mass rebuild 2013-12-27
+* Sun Aug 17 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.2-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
+
+* Thu Jul 24 2014 Benjamin Tissoires <benjamin.tissoires@redhat.com> 1.1.2-1
+- libfontenc 1.1.2
+
+* Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.1-5
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
+
+* Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.1-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
 
 * Thu Feb 14 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.1-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
